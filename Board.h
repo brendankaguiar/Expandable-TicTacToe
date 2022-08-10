@@ -3,6 +3,7 @@
 #include "Player.h"
 #include <string>
 #include <iostream>
+#include <vector>
 using namespace std;
 class Board
 {
@@ -17,9 +18,12 @@ private:
 	string winner;
 public:
 	Board(const int _size);
+	void apply_states(int state[][3]);
 	bool check_for_winner(const Player p);
 	void get_grid();
+	int get_size() const;
 	void make_move(const Player p);
-	string get_winner();
+	void AI_move(int move[]);
+	string get_winner() const;
 };
 #endif // !_Board
