@@ -1,5 +1,4 @@
 #include "Board.h"
-
 Board::Board(const int _size) :size(_size) {}
 
 bool Board::check_for_winner(const Player p)
@@ -64,9 +63,13 @@ bool Board::check_for_winner(const Player p)
 		winner = "Tie";
 	return hoz || vert || diag1 || diag2 || tie;
 }
-string Board::get_winner()
+string Board::get_winner() const
 {
 	return winner;
+}
+int Board::get_size() const
+{
+	return size;
 }
 void Board::get_grid()
 {	
@@ -75,7 +78,7 @@ void Board::get_grid()
 	cout << endl;
 	for (int n = 0; n < size; n++)
 	{
-		for (int m = 0; m < (2 * size) - 1; m ++)
+		for (int m = 0; m < (2 * size) - 1; m++)
 		{
 			cout << grid[n][m];
 		}
@@ -94,7 +97,7 @@ void Board::make_move(const Player p)
 		cin >> coordinates[0];
 		cout << "Enter Number : ";
 		cin >> coordinates[1];
-		if (int(coordinates[1]) - 48 >= 0 && int(coordinates[1]) - 48 <= size - 1 && (int(coordinates[0]) - 65) * 2 >= 0 && (int(coordinates[0]) - 65) * 2 <= size + 1)
+		if (int(coordinates[1]) - 48 >= 0 && int(coordinates[1]) - 48 <= size - 1 && (int(coordinates[0]) - 65) * 2 >= 0 && (int(coordinates[0]) - 65) * 2 < size * 2 - 1)
 		{
 			if (grid[int(coordinates[1]) - 48][(int(coordinates[0]) - 65) * 2] == '_')
 			{
@@ -108,5 +111,29 @@ void Board::make_move(const Player p)
 		else
 			cout << "Space outside of grid. Try again.\n\n\n\n\n\n";
 
+	}
+}
+
+void Board::AI_move(int move[])
+{
+	grid[move[0]][move[1] * 2] = 'O';
+}
+void Board::apply_states(int state[][3])
+{
+	int i = 0;
+	for (int n = 0; n < size; n++)//check rows
+	{
+		int j = 0;
+		for (int m = 0; m < (2 * size) - 1; m = m + 2)//check cols
+		{
+			if (grid[n][m] == 'O')
+				state[i][j] = 1;
+			else if (grid[n][m] == 'X')
+				state[i][j] = -1;
+			else
+				state[i][j] = 0;
+			j++;
+		}
+		i++;
 	}
 }
