@@ -1,110 +1,94 @@
-#include <iostream>
-#include "Board.h"
-#include "Player.h"
+#include "Board.hpp"
+#include "Player.hpp"
 #include "Minimax.h"
-using namespace std;
-vector<Player> player;
-void setup(int& playerCnt, int& gridSize);
-void play(int gridSize);
-void single_player(int gridSize);
+Player player[2];
+Board board;
+int _winner = 0;
+int turn;
+void setup();
+void single_player();
+void two_player();
 
 int main()
 {
-	int again = 1;
-	while (again)
-	{
-		int playerCnt;
-		int gridSize;
-		setup(playerCnt, gridSize);
-		if (playerCnt == 1)
-			single_player(gridSize);
-		else
-			play(gridSize);
-		cout << "\nPlay again? 1 for yes, 0 for no.\n";
-		cin >> again;
-		if (again)
-			player.clear();
-	}
-	return 0;
+    int num_players = 0;
+    bool grant = false;
+    while (!grant)
+    {
+        cout << "How many players? Between 1 and 2 please.\n\nChoose: ";
+        cin >> num_players;
+        if (num_players > 2 || num_players < 1)
+            cout << "Number of players out of range. Try again.\n\n";
+        else
+            grant = true;
+    }
+    setup();
+    if (num_players == 2)//Two Player Game
+        two_player();
+    else//AI based game
+        single_player();
+    return 0;
 }
-
-void single_player(int gridSize)
+void single_player()
 {
-	Board board(gridSize);
-	Player p('O');
-	int move[3];
-	int state[3][3];
-	player.push_back(p);//add AI player
-	bool gameOver = false;
-	while (!gameOver)
-	{
-		board.make_move(player[0]);//player 1 moves
-		gameOver = board.check_for_winner(player[0]);
-		if (!gameOver)//AI player moves
-		{
-			board.apply_states(state);//update state for next minimax search
-			Minimax game;
-			game.max_value(state, move);
-			board.AI_move(move);
-			gameOver = board.check_for_winner(player[1]);
-		}
-	}
-	board.get_grid();
-	if (board.get_winner() == "Tie")
-		cout << "Tie! No one wins.";
-	else
-		cout << board.get_winner() << " is the winner!\n\n\n\n\n\n";
-
+    cout << "working on it.\n";
+    bool gameOver = false;
+    int move[2];
+    int state[6][7];
+    while (!gameOver)
+    {
+        cout << "\n\nPlayer " << 1 << endl;//player 1 moves
+        board.make_move(player[0]);
+        gameOver = board.check_for_winner(player[0].get_token());
+        if (!gameOver)
+        {
+            board.apply_states(state);
+            Minimax game;
+            game.max_value(state, move);
+            board.make_move_AI(player[1], move[0]);
+            gameOver = board.check_for_winner(player[1].get_token());
+            if (gameOver)
+                board.set_winner(player[1]);
+        }
+        else
+            board.set_winner(player[0]);
+    }
+    board.display_grid();
+    cout << "Player " << board.get_winner() << " won.\n\n";
 }
-void play(int gridSize)
+void two_player()
 {
-	Board board(gridSize);
-	bool gameOver = false;
-	while (!gameOver)
-	{
-		for (int n = 0; n < player.size(); n++)
-		{
-			board.make_move(player[n]);
-			gameOver = board.check_for_winner(player[n]);
-			if (gameOver)
-
-				n = player.size();
-		}
-	}
-	board.get_grid();
-	if (board.get_winner() == "Tie")
-		cout << "Tie! No one wins.";
-	else
-		cout << board.get_winner() << " is the winner!\n\n\n\n\n\n";
+    bool gameOver = false;
+    while (!gameOver)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            cout << "\n\nPlayer " << i + 1 << endl;
+            board.make_move(player[i]);
+            gameOver = board.check_for_winner(player[i].get_token());
+            if (gameOver)
+            {
+                if (board.check_for_tie())
+                    cout << "It's a Tie!\n\n";
+                else
+                {
+                    board.set_winner(player[i]);
+                    cout << "Player " << i + 1 << " : " << player[i].get_token() << " won.\n\n";
+                }
+                board.display_grid();
+                i = 2;
+            }
+        }
+    }
 }
-
-void setup(int& playerCnt, int& gridSize)
+void setup()
 {
-	bool grant = true;
-	while (grant)
-	{
-		cout << "Welome to Tic Tac Toe. How many players will be playing? Between 1 and 5 allowed.\n";
-		cin >> playerCnt;
-		cout << playerCnt << " players.\n";
-		if (playerCnt == 1)
-			gridSize = 3;
-		else
-		{
-			cout << "What is the size of the square grid? Between 3 and 6 allowed.\n";
-			cin >> gridSize;
-			if (playerCnt < 6 && playerCnt > 0 && gridSize < 7 && gridSize > 2)
-				grant = false;
-			else
-				cout << "Invalid player amount or grid size. Try again.\n\n\n\n\n\n";
-		}
-		grant = false;
-	}
-	cout << "Almost ready to start...\n";
-	char token[5] = { 'X','O','@','$','%' };
-	for (int i = 0; i < playerCnt; i++)
-	{
-		cout << "Player " << i + 1 << ". Your token is " << token[i] << ".\n";
-		Player p(token[i]);
-		player.push_back(p);
-	}
+    char _token[2] = { '@', '#' };
+    for (int i = 0; i < 2; i++)
+    {
+        cout << "Player " << i + 1 << ": " << _token[i] << " is your token.\n";
+        Player p(_token[i]);
+        player[i] = p;
+    }
+    board.set_players(player);
 }
